@@ -1,0 +1,30 @@
+name: easy-scraper
+recipe: laravel
+
+config:
+  webroot: public
+  php: '8.2'
+  composer_version: '2.5.4'
+  cache: redis
+
+services:
+  database:
+    creds:
+      portforward: true
+      database: easy_scraper
+      password: password
+      user: lando
+  phpmyadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+  mailhog:
+    type: mailhog
+    ssl: true
+    portforward: true
+
+proxy:
+  phpmyadmin:
+    - phpmyadmin.lndo.site
+  mailhog:
+    - mailhog.lndo.site
