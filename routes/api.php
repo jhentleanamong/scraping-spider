@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ScraperController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/', [\App\Http\Controllers\Api\ScraperController::class, 'store']);
+// Register a new scraping job
+Route::post('/jobs', [ScraperController::class, 'store']);
+
+// Retrieve details of a specific scraping job by its ID
+Route::get('/jobs/{id}', [ScraperController::class, 'show']);

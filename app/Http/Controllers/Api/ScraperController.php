@@ -25,11 +25,11 @@ class ScraperController extends Controller
             'extract_rules' => ['nullable', 'string'],
         ]);
 
-        $uuid = Str::orderedUuid();
-        $key = 'scrape_record:' . $uuid;
+        $id = Str::orderedUuid();
+        $key = 'scrape_record:' . $id;
 
         Redis::hmset($key, [
-            'id' => $uuid,
+            'id' => $id,
             'url' => $validated['url'],
             'extract_rules' => $validated['extract_rules'],
             'result' => '',
@@ -56,19 +56,29 @@ class ScraperController extends Controller
                 'result' => json_encode($result),
                 'status' => 'complete',
             ]);
+
+            return $service->formatRecord(Redis::hgetall($key));
         } catch (\Exception $e) {
             // Update Redis with error status
             Redis::hmset($key, [
                 'status' => 'failed',
                 'updated_at' => now(),
             ]);
-        }
 
-        // Transform the extracted items and return the first one
-        return collect($items)
-            ->map(function ($item) {
-                return $item->all();
-            })
-            ->first();
+            return $service->formatRecord(Redis::hgetall($key));
+        }
+    }
+
+    /**
+     * Display the specified scrape record resource.
+     *
+     * @param string $id The unique identifier for the scraping record.
+     * @param ScraperService $service The service responsible for formatting scraping records.
+     * @return array The formatted scraping record.
+     */
+    public function show(string $id, ScraperService $service): array
+    {
+        $key = 'scrape_record:' . $id;
+        return $service->formatRecord(Redis::hgetall($key));
     }
 }

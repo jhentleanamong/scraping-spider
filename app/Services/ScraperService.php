@@ -23,4 +23,23 @@ class ScraperService
             context: ['extract_rules' => $rules]
         );
     }
+
+    /**
+     * Formats the scrape record from Redis.
+     *
+     * @param array $data The data from Redis.
+     * @return array The formatted data.
+     */
+    public function formatRecord(array $data): array
+    {
+        return [
+            'id' => $data['id'],
+            'url' => $data['url'],
+            'extract_rules' => $data['extract_rules'],
+            'result' => $data['result'],
+            'status' => $data['status'],
+            'created_at' => $data['created_at'],
+            'updated_at' => $data['updated_at'],
+        ];
+    }
 }
