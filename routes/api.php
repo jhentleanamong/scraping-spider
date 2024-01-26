@@ -24,3 +24,6 @@ Route::post('/jobs', [ScraperController::class, 'store']);
 
 // Retrieve details of a specific scraping job by its ID
 Route::get('/jobs/{id}', [ScraperController::class, 'show']);
+
+// Define the route for deleting a specific scrape record by its ID
+Route::delete('/jobs/{id}', [ScraperController::class, 'destroy']);

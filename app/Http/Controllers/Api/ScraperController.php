@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\ScraperService;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
@@ -58,7 +60,7 @@ class ScraperController extends Controller
             ]);
 
             return $service->formatRecord(Redis::hgetall($key));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Update Redis with error status
             Redis::hmset($key, [
                 'status' => 'failed',
@@ -74,11 +76,57 @@ class ScraperController extends Controller
      *
      * @param string $id The unique identifier for the scraping record.
      * @param ScraperService $service The service responsible for formatting scraping records.
-     * @return array The formatted scraping record.
+     * @return array|JsonResponse The formatted scraping record.
      */
-    public function show(string $id, ScraperService $service): array
+    public function show(string $id, ScraperService $service): mixed
     {
         $key = 'scrape_record:' . $id;
-        return $service->formatRecord(Redis::hgetall($key));
+        $record = Redis::hgetall($key);
+
+        // Check if the record exist
+        if ($record) {
+            return $service->formatRecord(Redis::hgetall($key));
+        } else {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Scrape record not found',
+                ],
+                404
+            );
+        }
+    }
+
+    /**
+     * Remove the specified scrape record resource.
+     *
+     * @param string $id The unique identifier for the scraping record.
+     * @return JsonResponse
+     */
+    public function destroy(string $id)
+    {
+        $key = 'scrape_record:' . $id;
+
+        // Delete the entire hash
+        $deleted = Redis::del($key);
+
+        // Check if the hash was actually deleted
+        if ($deleted) {
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Scrape record successfully deleted',
+                ],
+                200
+            );
+        } else {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Scrape record not found',
+                ],
+                404
+            );
+        }
     }
 }
