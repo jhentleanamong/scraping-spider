@@ -3,63 +3,38 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\ScraperService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use RoachPHP\Spider\Configuration\Overrides;
 
 class ScraperController extends Controller
 {
     /**
-     * Store a newly created resource in storage.
+     * Store a new scraped item based on the provided URL and extraction rules.
+     *
+     * @param Request $request
+     * @param ScraperService $service
+     * @return array
      */
-    public function store(Request $request)
+    public function store(Request $request, ScraperService $service): array
     {
-        // return urlencode('{
-        //     "title" : {
-        //         "selector": "h1",
-        //         "output": "text",
-        //         "type": "item"
-        //     },
-        //     "link": {
-        //         "selector": "h1 a",
-        //         "output": "@href",
-        //         "type": "item"
-        //     },
-        //     "tag": {
-        //         "selector": ".tag",
-        //         "output": "text",
-        //         "type": "list"
-        //     },
-        //     "quotes": {
-        //         "selector": ".quote",
-        //         "type": "list",
-        //         "output": {
-        //             "author": {
-        //                 "selector": ".author",
-        //                 "output": "text",
-        //                 "type": "item"
-        //             },
-        //             "quote": {
-        //                 "selector": ".text",
-        //                 "output": "text",
-        //                 "type": "item"
-        //             }
-        //         }
-        //     }
-        // }');
-
+        // Validate the incoming request data
         $validated = $request->validate([
             'url' => ['required'],
             'extract_rules' => ['nullable', 'string'],
         ]);
 
-        // return json_decode($validated['extract_rules'], true);
-
-        $items = \RoachPHP\Roach::collectSpider(
-            \App\Spiders\UniversalSpider::class,
-            new Overrides(startUrls: [$validated['url']]),
-            context: ['extract_rules' => $validated['extract_rules']]
+        // Use the ScraperService to extract data
+        $items = $service->extract(
+            $validated['url'],
+            $validated['extract_rules']
         );
 
-        return array_map(fn($item) => $item->all(), $items);
+        // Transform the extracted items and return the first one
+        return collect($items)
+            ->map(function ($item) {
+                return $item->all();
+            })
+            ->first();
     }
 }

@@ -9,40 +9,49 @@ use RoachPHP\Extensions\StatsCollectorExtension;
 use RoachPHP\Http\Response;
 use RoachPHP\Spider\BasicSpider;
 use RoachPHP\Spider\ParseResult;
+use Symfony\Component\DomCrawler\Crawler;
 
 class UniversalSpider extends BasicSpider
 {
     /**
      * An array of initial URLs for the spider to start crawling.
+     *
+     * @var array
      */
-    public array $startUrls = ['https://quotes.toscrape.com/'];
+    public array $startUrls = [];
 
     /**
-     * The spider middleware that should be used for runs
-     * of this spider.
+     * The spider middleware that should be used for runs of this spider.
+     *
+     * @var array
      */
     public array $spiderMiddleware = [];
 
     /**
-     * The downloader middleware that should be used for
-     * runs of this spider.
+     * The downloader middleware that should be used for runs of this spider.
+     *
+     * @var array
      */
     public array $downloaderMiddleware = [];
 
     /**
-     * The item processors that emitted items will be send
-     * through.
+     * The item processors that emitted items will be send through.
+     *
+     * @var array
      */
     public array $itemProcessors = [];
 
     /**
-     * The extensions that should be used for runs of this
-     * spider.
+     * The extensions that should be used for runs of this spider.
+     *
+     * @var array
      */
     public array $extensions = [];
 
     /**
      * How many requests are allowed to be sent concurrently.
+     *
+     * @var int
      */
     public int $concurrency = 2;
 
@@ -51,6 +60,8 @@ class UniversalSpider extends BasicSpider
      * is no delay between concurrent requests. Instead, Roach
      * will wait for the `$requestDelay` before sending the
      * next "batch" of concurrent requests.
+     *
+     * @var int
      */
     public int $requestDelay = 2;
 
@@ -59,239 +70,106 @@ class UniversalSpider extends BasicSpider
      *
      * @return Generator<ParseResult>
      */
-    // public function parse(Response $response): Generator
-    // {
-    //     $extractRules = json_decode($this->context['extract_rules'], true);
-    //     $content = [];
-    //
-    //     // Output:
-    //     // text
-    //     // html
-    //     // @ prefix for attribute
-    //     // list
-    //
-    //     if ($extractRules) {
-    //         foreach ($extractRules as $key => $value) {
-    //             $result = null;
-    //
-    //             if ($value['type'] == 'item') {
-    //                 if (str_starts_with($value['output'], '@')) {
-    //                     $attribute = substr($value['output'], 1);
-    //                     $result = $response
-    //                         ->filter($value['selector'])
-    //                         ->attr($attribute);
-    //                 }
-    //
-    //                 if ($value['output'] == 'text') {
-    //                     $result = $response->filter($value['selector'])->text();
-    //                 }
-    //
-    //                 if ($value['output'] == 'html') {
-    //                     $result = $response->filter($value['selector'])->html();
-    //                 }
-    //
-    //                 $content[$key] = $result;
-    //             }
-    //
-    //             if ($value['type'] == 'list') {
-    //                 /*if (is_array($value['output'])) {
-    //                     foreach ($value['output'] as $listOutput) {
-    //                         $listOutputResult = $response
-    //                             ->filter($value['selector'])
-    //                             ->each(function ($node, $i) use ($listOutput) {
-    //                                 $listOutputResult = [];
-    //
-    //                                 // Repeat whole cycle again here
-    //
-    //                                 // foreach (
-    //                                 //     $listOutput
-    //                                 //     as $listOutputKey => $listOutputValue
-    //                                 // ) {
-    //                                 //     $listOutputResult[]
-    //                                 // }
-    //                             });
-    //
-    //                         // if (str_starts_with($listValue['output'], '@')) {
-    //                         //     $attribute = substr($listValue['output'], 1);
-    //                         //
-    //                         //     $listOutputResult = $response
-    //                         //         ->filter($listValue['selector'])
-    //                         //         ->each(function ($node, $i) use (
-    //                         //             $attribute
-    //                         //         ) {
-    //                         //             return $node->attr($attribute);
-    //                         //         });
-    //                         // }
-    //                         //
-    //                         // if ($listValue['output'] == 'text') {
-    //                         //     $listOutputResult = $response
-    //                         //         ->filter($listValue['selector'])
-    //                         //         ->each(function ($node, $i) {
-    //                         //             return $node->text();
-    //                         //         });
-    //                         // }
-    //                         //
-    //                         // if ($listValue['output'] == 'html') {
-    //                         //     $listOutputResult = $response
-    //                         //         ->filter($listValue['selector'])
-    //                         //         ->each(function ($node, $i) {
-    //                         //             return $node->html();
-    //                         //         });
-    //                         // }
-    //                         //
-    //                         $content[$key] = $listOutputResult;
-    //                     }
-    //                 } else {*/
-    //                 if (str_starts_with($value['output'], '@')) {
-    //                     $attribute = substr($value['output'], 1);
-    //
-    //                     $listResult = $response
-    //                         ->filter($value['selector'])
-    //                         ->each(function ($node, $i) use ($attribute) {
-    //                             return $node->attr($attribute);
-    //                         });
-    //                 }
-    //
-    //                 if ($value['output'] == 'text') {
-    //                     $listResult = $response
-    //                         ->filter($value['selector'])
-    //                         ->each(function ($node, $i) {
-    //                             return $node->text();
-    //                         });
-    //                 }
-    //
-    //                 if ($value['output'] == 'html') {
-    //                     $listResult = $response
-    //                         ->filter($value['selector'])
-    //                         ->each(function ($node, $i) {
-    //                             return $node->html();
-    //                         });
-    //                 }
-    //
-    //                 $content[$key] = $listResult;
-    //                 /*}*/
-    //             }
-    //         }
-    //     }
-    //
-    //     // dd($extractRules);
-    //
-    //     yield $this->item(['content' => $content]);
-    //
-    //     // dd($extractRules);
-    //     //
-    //     // $items = $response->filter('h1')->text();
-    //
-    //     // yield $this->item(['url' => $response->getUri(), 'content' => $items]);
-    //     //
-    //     // dd($items);
-    //
-    //     // $items = $response
-    //     //     ->filter($this->context['filter'])
-    //     //     ->each(function ($node, $i) {
-    //     //         return $node->text();
-    //     //     });
-    //     //
-    //     // dd($response->html());
-    //     //
-    //     // yield $this->item([$this->startUrls]);
-    // }
-
     public function parse(Response $response): Generator
     {
+        $result = [];
+
+        // Decoding JSON extraction rules from the context
         $extractRules = json_decode($this->context['extract_rules'], true);
-        $content = [];
 
-        if ($extractRules) {
-            foreach ($extractRules as $key => $value) {
-                if ($value['type'] == 'item') {
-                    $result = $this->extractItem($response, $value);
-                    $content[$key] = $result;
-                }
-
-                if ($value['type'] == 'list') {
-                    $listResult = $this->extractList($response, $value);
-                    $content[$key] = $listResult;
-                }
-            }
+        // If no extraction rules are defined, yield a simple item with HTML content
+        if (!$extractRules) {
+            yield $this->item([$response->html()]);
+            return;
         }
 
-        yield $this->item(['content' => $content]);
+        // Iterating over each property and its rules for extraction
+        foreach ($extractRules as $property => $rules) {
+            $result[$property] = $this->extract($response, $rules);
+        }
+
+        // Yielding the final result after extraction
+        yield $this->item($result);
     }
 
     /**
-     * Extracts content for single items.
+     * Extracts a property from the response based on provided rules.
      *
-     * @param mixed $response The HTTP response object.
-     * @param array $value The extraction rules for the item.
-     * @return mixed|null The extracted content.
+     * @param Response|Crawler $response The response or crawler object.
+     * @param array $rules Rules for extraction.
+     * @return string|array|null Extracted data or null if not found.
      */
-    private function extractItem(mixed $response, array $value): mixed
-    {
-        $result = null;
-
-        if (str_starts_with($value['output'], '@')) {
-            $attribute = substr($value['output'], 1);
-            $result = $response->filter($value['selector'])->attr($attribute);
-        } elseif ($value['output'] == 'text') {
-            $result = $response->filter($value['selector'])->text();
-        } elseif ($value['output'] == 'html') {
-            $result = $response->filter($value['selector'])->html();
-        }
-
-        return $result;
+    private function extract(
+        Response|Crawler $response,
+        array $rules
+    ): string|array|null {
+        // Choosing extraction method based on the type defined in rules
+        return match ($rules['type']) {
+            'list' => $this->extractList($response, $rules),
+            default => $this->extractItem($response, $rules),
+        };
     }
 
     /**
-     * Extracts content for lists.
+     * Extract the first element matching the property selector.
      *
-     * @param mixed $response The HTTP response object.
-     * @param array $value The extraction rules for the list.
-     * @return array The extracted list content.
+     * @param Response|Crawler $response The response or crawler object.
+     * @param array $rules Extraction rules for the item.
+     * @return string|null Extracted item or null if not found.
      */
-    private function extractList(mixed $response, array $value)
-    {
-        if (is_array($value['output'])) {
+    private function extractItem(
+        Response|Crawler $response,
+        array $rules
+    ): ?string {
+        // Check if the output rule starts with '@', indicating it's an attribute extraction
+        if (str_starts_with($rules['output'], '@')) {
+            // Extract the specified attribute from the selected element
             return $response
-                ->filter($value['selector'])
-                ->each(function ($node, $i) use ($value) {
+                ->filter($rules['selector'])
+                ->attr(substr($rules['output'], 1));
+        }
+
+        // Extracting text, or HTML based on the output rule
+        return match ($rules['output']) {
+            'html' => $response->filter($rules['selector'])->html(),
+            default => $response->filter($rules['selector'])->text(),
+        };
+    }
+
+    /**
+     * Extract a list of all elements matching the property selector.
+     *
+     * @param Response|Crawler $response The response or crawler object.
+     * @param array $rules Extraction rules for the list.
+     * @return array Extracted list of items.
+     */
+    private function extractList(
+        Response|Crawler $response,
+        array $rules
+    ): array {
+        // Handling different output structures (array or single item)
+        if (is_array($rules['output'])) {
+            $properties = $rules['output'];
+
+            // Extracting multiple properties for each matched node
+            return $response
+                ->filter($rules['selector'])
+                ->each(function (Crawler $node) use ($properties) {
                     $result = [];
 
-                    foreach ($value['output'] as $childKey => $childValue) {
-                        if ($childValue['type'] == 'item') {
-                            $result[$childKey] = $this->extractItem(
-                                $node,
-                                $childValue
-                            );
-                        }
-
-                        if ($childValue['type'] == 'list') {
-                            $result[$childKey] = $this->extractList(
-                                $node,
-                                $childValue
-                            );
-                        }
+                    foreach ($properties as $key => $rules) {
+                        $result[$key] = $this->extract($node, $rules);
                     }
 
                     return $result;
                 });
         }
 
+        // Extracting a single property for each matched node
         return $response
-            ->filter($value['selector'])
-            ->each(function ($node, $i) use ($value) {
-                $result = null;
-
-                if (str_starts_with($value['output'], '@')) {
-                    $attribute = substr($value['output'], 1);
-                    $result = $node->attr($attribute);
-                } elseif ($value['output'] == 'text') {
-                    $result = $node->text();
-                } elseif ($value['output'] == 'html') {
-                    $result = $node->html();
-                }
-
-                return $result;
+            ->filter($rules['selector'])
+            ->each(function (Crawler $node) use ($rules) {
+                return $this->extractItem($node, $rules);
             });
     }
 }
