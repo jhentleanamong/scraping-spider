@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Spiders\UniversalSpider;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use RoachPHP\Roach;
 use RoachPHP\Spider\Configuration\Overrides;
 
@@ -41,5 +43,49 @@ class ScraperService
             'created_at' => $data['created_at'],
             'updated_at' => $data['updated_at'],
         ];
+    }
+
+    /**
+     * Create and store a scrape record in Redis based on provided URLs and rules.
+     *
+     * @param array $urls  The URLs to be scraped.
+     * @param mixed $rules  The extraction rules for scraping.
+     * @return array  The formatted scrape record data.
+     */
+    public function saveScrapeRecord(array $urls, mixed $rules): array
+    {
+        $id = Str::orderedUuid();
+        $key = 'scrape_record:' . $id;
+
+        // Store initial scrape record data in Redis
+        Redis::hmset($key, [
+            'id' => $id,
+            'urls' => json_encode($urls),
+            'extract_rules' => $rules,
+            'results' => '',
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Set the status to 'in-progress' in Redis
+        Redis::hset($key, 'status', 'in-progress');
+
+        // Extract data from the provided URLs and rules
+        $items = $this->extract($urls, $rules);
+
+        // Transform and store the extracted data and update the status in Redis
+        $results = collect($items)->map(function ($item) {
+            return $item->all();
+        });
+
+        // Update Redis with the result and status
+        Redis::hmset($key, [
+            'results' => json_encode($results),
+            'status' => 'completed',
+        ]);
+
+        // Return the formatted scrape record data
+        return $this->formatRecord(Redis::hgetall($key));
     }
 }

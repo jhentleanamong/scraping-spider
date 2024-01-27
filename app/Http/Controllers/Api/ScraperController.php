@@ -34,40 +34,15 @@ class ScraperController extends Controller
             $validated['urls'] = [$validated['urls']];
         }
 
-        $id = Str::orderedUuid();
-        $key = 'scrape_record:' . $id;
-
-        Redis::hmset($key, [
-            'id' => $id,
-            'urls' => json_encode($validated['urls']),
-            'extract_rules' => $validated['extract_rules'],
-            'results' => '',
-            'status' => 'pending',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         try {
-            // Use the ScraperService to extract data
-            $items = $service->extract(
+            // Save the scrape record and obtain the formatted result
+            $scrapeRecord = $service->saveScrapeRecord(
                 $validated['urls'],
                 $validated['extract_rules']
             );
 
-            $results = collect($items)->map(function ($item) {
-                return $item->all();
-            });
-
-            // Update Redis with the result and status
-            Redis::hmset($key, [
-                'results' => json_encode($results),
-                'status' => 'completed',
-            ]);
-
-            return response()->json(
-                $service->formatRecord(Redis::hgetall($key)),
-                200
-            );
+            // Return the formatted scrape record as a JSON response
+            return response()->json($scrapeRecord, 200);
         } catch (Exception $e) {
             return response()->json(
                 [
