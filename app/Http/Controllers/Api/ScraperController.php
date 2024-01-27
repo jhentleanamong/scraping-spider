@@ -17,10 +17,12 @@ class ScraperController extends Controller
      *
      * @param Request $request
      * @param ScraperService $service
-     * @return array
+     * @return JsonResponse
      */
-    public function store(Request $request, ScraperService $service): array
-    {
+    public function store(
+        Request $request,
+        ScraperService $service
+    ): JsonResponse {
         // Validate the incoming request data
         $validated = $request->validate([
             'urls' => ['required', 'array'],
@@ -59,18 +61,21 @@ class ScraperController extends Controller
             // Update Redis with the result and status
             Redis::hmset($key, [
                 'results' => json_encode($results),
-                'status' => 'complete',
+                'status' => 'completed',
             ]);
 
-            return $service->formatRecord(Redis::hgetall($key));
+            return response()->json(
+                $service->formatRecord(Redis::hgetall($key)),
+                200
+            );
         } catch (Exception $e) {
-            // Update Redis with error status
-            Redis::hmset($key, [
-                'status' => 'failed',
-                'updated_at' => now(),
-            ]);
-
-            return $service->formatRecord(Redis::hgetall($key));
+            return response()->json(
+                [
+                    'message' =>
+                        'An unexpected error occurred. Please try again later.',
+                ],
+                500
+            );
         }
     }
 
@@ -79,25 +84,27 @@ class ScraperController extends Controller
      *
      * @param string $id The unique identifier for the scraping record.
      * @param ScraperService $service The service responsible for formatting scraping records.
-     * @return array|JsonResponse The formatted scraping record.
+     * @return JsonResponse The formatted scraping record.
      */
-    public function show(string $id, ScraperService $service): mixed
+    public function show(string $id, ScraperService $service): JsonResponse
     {
         $key = 'scrape_record:' . $id;
         $record = Redis::hgetall($key);
 
         // Check if the record exist
-        if ($record) {
-            return $service->formatRecord(Redis::hgetall($key));
-        } else {
+        if (!$record) {
             return response()->json(
                 [
-                    'status' => 'error',
-                    'message' => 'Scrape record not found',
+                    'message' => 'Scrape record does not exist',
                 ],
                 404
             );
         }
+
+        return response()->json(
+            $service->formatRecord(Redis::hgetall($key)),
+            200
+        );
     }
 
     /**
@@ -106,7 +113,7 @@ class ScraperController extends Controller
      * @param string $id The unique identifier for the scraping record.
      * @return JsonResponse
      */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
         $key = 'scrape_record:' . $id;
 
@@ -114,22 +121,20 @@ class ScraperController extends Controller
         $deleted = Redis::del($key);
 
         // Check if the hash was actually deleted
-        if ($deleted) {
+        if (!$deleted) {
             return response()->json(
                 [
-                    'status' => 'success',
-                    'message' => 'Scrape record successfully deleted',
-                ],
-                200
-            );
-        } else {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'message' => 'Scrape record not found',
+                    'message' => 'Scrape record does not exist',
                 ],
                 404
             );
         }
+
+        return response()->json(
+            [
+                'message' => 'Scrape record successfully deleted',
+            ],
+            200
+        );
     }
 }
