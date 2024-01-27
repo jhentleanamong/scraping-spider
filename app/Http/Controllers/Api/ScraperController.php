@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 class ScraperController extends Controller
 {
     /**
-     * Store a new scraped item based on the provided URL and extraction rules.
+     * Store a new scraped item based on the provided URLs and extraction rules.
      *
      * @param Request $request
      * @param ScraperService $service
@@ -23,18 +23,23 @@ class ScraperController extends Controller
     {
         // Validate the incoming request data
         $validated = $request->validate([
-            'url' => ['required'],
+            'urls' => ['required', 'array'],
+            'urls.*' => ['string', 'url'],
             'extract_rules' => ['nullable', 'string'],
         ]);
+
+        if (is_string($validated['urls'])) {
+            $validated['urls'] = [$validated['urls']];
+        }
 
         $id = Str::orderedUuid();
         $key = 'scrape_record:' . $id;
 
         Redis::hmset($key, [
             'id' => $id,
-            'url' => $validated['url'],
+            'urls' => json_encode($validated['urls']),
             'extract_rules' => $validated['extract_rules'],
-            'result' => '',
+            'results' => '',
             'status' => 'pending',
             'created_at' => now(),
             'updated_at' => now(),
@@ -43,19 +48,17 @@ class ScraperController extends Controller
         try {
             // Use the ScraperService to extract data
             $items = $service->extract(
-                $validated['url'],
+                $validated['urls'],
                 $validated['extract_rules']
             );
 
-            $result = collect($items)
-                ->map(function ($item) {
-                    return $item->all();
-                })
-                ->first();
+            $results = collect($items)->map(function ($item) {
+                return $item->all();
+            });
 
             // Update Redis with the result and status
             Redis::hmset($key, [
-                'result' => json_encode($result),
+                'results' => json_encode($results),
                 'status' => 'complete',
             ]);
 

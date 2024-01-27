@@ -11,15 +11,15 @@ class ScraperService
     /**
      * Extract data from a specified URL using extraction rules.
      *
-     * @param string $url The URL to scrape data from.
+     * @param array $urls An array of URLs to scrape data from.
      * @param mixed $rules The extraction rules to apply.
      * @return array An array containing the extracted data.
      */
-    public function extract(string $url, mixed $rules): array
+    public function extract(array $urls, mixed $rules): array
     {
         return Roach::collectSpider(
             UniversalSpider::class,
-            new Overrides(startUrls: [$url]),
+            new Overrides(startUrls: $urls),
             context: ['extract_rules' => $rules]
         );
     }
@@ -34,9 +34,9 @@ class ScraperService
     {
         return [
             'id' => $data['id'],
-            'url' => $data['url'],
-            'extract_rules' => $data['extract_rules'],
-            'result' => $data['result'],
+            'urls' => json_decode($data['urls']),
+            'extract_rules' => json_decode($data['extract_rules']),
+            'results' => json_decode($data['results']),
             'status' => $data['status'],
             'created_at' => $data['created_at'],
             'updated_at' => $data['updated_at'],

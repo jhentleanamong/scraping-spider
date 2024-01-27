@@ -89,7 +89,10 @@ class UniversalSpider extends BasicSpider
         }
 
         // Yielding the final result after extraction
-        yield $this->item($result);
+        yield $this->item([
+            'url' => $response->getUri(),
+            'result' => $result,
+        ]);
     }
 
     /**
@@ -121,6 +124,11 @@ class UniversalSpider extends BasicSpider
         Response|Crawler $response,
         array $rules
     ): ?string {
+        // Check if the element exists
+        if ($response->filter($rules['selector'])->count() < 1) {
+            return null;
+        }
+
         // Check if the output rule starts with '@', indicating it's an attribute extraction
         if (str_starts_with($rules['output'], '@')) {
             // Extract the specified attribute from the selected element
