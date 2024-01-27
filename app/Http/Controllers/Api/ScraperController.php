@@ -13,6 +13,21 @@ use Illuminate\Support\Str;
 class ScraperController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     *
+     * @param ScraperService $service
+     * @return JsonResponse
+     */
+    public function index(ScraperService $service): JsonResponse
+    {
+        // Get all scrape records
+        $scrapeRecords = $service->getScrapeRecords();
+
+        // Return the all scrape records as a JSON response
+        return response()->json($scrapeRecords, 200);
+    }
+
+    /**
      * Store a new scraped item based on the provided URLs and extraction rules.
      *
      * @param Request $request
@@ -111,5 +126,51 @@ class ScraperController extends Controller
             ],
             200
         );
+    }
+
+    /**
+     * Retrieves all scrape records matching a specific pattern.
+     *
+     * @return array An array of formatted scrape records.
+     */
+    public function getScrapeRecords(): array
+    {
+        // Define the pattern to search for in Redis keys
+        $pattern = 'scrape_record:*';
+
+        // Retrieve keys matching the pattern
+        $keys = $this->getKeys($pattern);
+        $scrapeRecords = [];
+
+        // Iterate over each key and get its corresponding data
+        foreach ($keys as $key) {
+            // Get all fields and values for the hash stored at key
+            $scrapeRecords[] = $this->formatRecord(Redis::hgetall($key));
+        }
+
+        return $scrapeRecords;
+    }
+
+    /**
+     * Retrieves all keys matching a given pattern using Redis SCAN command.
+     *
+     * @param string $pattern The pattern to match against keys.
+     * @return array An array of keys matching the given pattern.
+     */
+    private function getKeys(string $pattern): array
+    {
+        $keys = [];
+        $cursor = 0;
+
+        // Use SCAN to iterate over keyspace
+        do {
+            // SCAN returns a cursor and an array of keys for each iteration
+            list($cursor, $result) = Redis::scan($cursor, 'match', $pattern);
+
+            // Merge the current batch of keys into the total result
+            $keys = array_merge($keys, $result);
+        } while ($cursor); // Continue until SCAN indicates completion
+
+        return $keys;
     }
 }
