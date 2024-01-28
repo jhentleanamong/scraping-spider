@@ -43,22 +43,41 @@ class ScraperController extends Controller
             'urls' => ['required', 'array'],
             'urls.*' => ['string', 'url'],
             'extract_rules' => ['nullable', 'string'],
+            'async' => ['nullable', 'string'],
         ]);
 
-        if (is_string($validated['urls'])) {
-            $validated['urls'] = [$validated['urls']];
+        // Set default values for the arguments
+        $defaults = [
+            'urls' => [],
+            'extract_rules' => null,
+            'async' => false,
+        ];
+
+        $args = array_merge($defaults, $validated);
+
+        // Converts single URL string into an array if necessary
+        if (is_string($args['urls'])) {
+            $args['urls'] = [$args['urls']];
         }
+
+        // Set 'async' to false if it's not set in the request
+        // Determines if the scraping should be performed asynchronously
+        $args['async'] = $args['async']
+            ? filter_var($args['async'], FILTER_VALIDATE_BOOLEAN)
+            : false;
 
         try {
             // Save the scrape record and obtain the formatted result
             $scrapeRecord = $service->saveScrapeRecord(
-                $validated['urls'],
-                $validated['extract_rules']
+                $args['urls'],
+                $args['extract_rules'],
+                $args['async']
             );
 
             // Return the formatted scrape record as a JSON response
             return response()->json($scrapeRecord, 200);
         } catch (Exception $e) {
+            // Handle exceptions by returning a generic error message
             return response()->json(
                 [
                     'message' =>
@@ -126,51 +145,5 @@ class ScraperController extends Controller
             ],
             200
         );
-    }
-
-    /**
-     * Retrieves all scrape records matching a specific pattern.
-     *
-     * @return array An array of formatted scrape records.
-     */
-    public function getScrapeRecords(): array
-    {
-        // Define the pattern to search for in Redis keys
-        $pattern = 'scrape_record:*';
-
-        // Retrieve keys matching the pattern
-        $keys = $this->getKeys($pattern);
-        $scrapeRecords = [];
-
-        // Iterate over each key and get its corresponding data
-        foreach ($keys as $key) {
-            // Get all fields and values for the hash stored at key
-            $scrapeRecords[] = $this->formatRecord(Redis::hgetall($key));
-        }
-
-        return $scrapeRecords;
-    }
-
-    /**
-     * Retrieves all keys matching a given pattern using Redis SCAN command.
-     *
-     * @param string $pattern The pattern to match against keys.
-     * @return array An array of keys matching the given pattern.
-     */
-    private function getKeys(string $pattern): array
-    {
-        $keys = [];
-        $cursor = 0;
-
-        // Use SCAN to iterate over keyspace
-        do {
-            // SCAN returns a cursor and an array of keys for each iteration
-            list($cursor, $result) = Redis::scan($cursor, 'match', $pattern);
-
-            // Merge the current batch of keys into the total result
-            $keys = array_merge($keys, $result);
-        } while ($cursor); // Continue until SCAN indicates completion
-
-        return $keys;
     }
 }
