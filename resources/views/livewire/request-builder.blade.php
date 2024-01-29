@@ -20,7 +20,6 @@
         </x-filament::section>
     </div>
 
-
     <div x-data="{ show: @entangle('showResponse').live }" x-show="show" wire:loading.remove>
 
         <x-filament::section>

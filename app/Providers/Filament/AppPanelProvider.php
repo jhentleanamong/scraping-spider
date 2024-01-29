@@ -47,6 +47,7 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                \App\Filament\App\Widgets\RequestList::class,
             ])
             ->middleware([
                 EncryptCookies::class,
