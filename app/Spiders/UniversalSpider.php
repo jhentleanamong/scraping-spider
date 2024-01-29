@@ -114,10 +114,19 @@ class UniversalSpider extends BasicSpider
             ]);
         }
 
+        // Set default values for the arguments
+        $defaults = [
+            'selector' => '',
+            'output' => 'text',
+            'type' => 'item',
+        ];
+
+        $args = array_merge($defaults, $rules);
+
         // Choosing extraction method based on the type defined in rules
-        return match ($rules['type']) {
-            'list' => $this->extractList($response, $rules),
-            default => $this->extractItem($response, $rules),
+        return match ($args['type']) {
+            'list' => $this->extractList($response, $args),
+            default => $this->extractItem($response, $args),
         };
     }
 
