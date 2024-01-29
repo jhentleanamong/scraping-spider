@@ -42,8 +42,8 @@ class ScraperController extends Controller
         $validated = $request->validate([
             'urls' => ['required', 'array'],
             'urls.*' => ['string', 'url'],
-            'extract_rules' => ['nullable', 'string'],
-            'async' => ['nullable', 'string'],
+            'extract_rules' => ['nullable'],
+            'async' => ['nullable'],
         ]);
 
         // Set default values for the arguments
