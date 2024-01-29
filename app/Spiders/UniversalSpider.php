@@ -99,13 +99,21 @@ class UniversalSpider extends BasicSpider
      * Extracts a property from the response based on provided rules.
      *
      * @param Response|Crawler $response The response or crawler object.
-     * @param array $rules Rules for extraction.
+     * @param string|array $rules Rules for extraction.
      * @return string|array|null Extracted data or null if not found.
      */
     private function extract(
         Response|Crawler $response,
-        array $rules
+        string|array $rules
     ): string|array|null {
+        // If the provided rules is a string, interpret it as a CSS selector
+        if (is_string($rules)) {
+            return $this->extractItem($response, [
+                'selector' => $rules,
+                'output' => 'text',
+            ]);
+        }
+
         // Choosing extraction method based on the type defined in rules
         return match ($rules['type']) {
             'list' => $this->extractList($response, $rules),
