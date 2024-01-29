@@ -8,6 +8,10 @@ config:
   cache: redis
 
 services:
+  appserver:
+    build_as_root:
+      - curl -sL https://deb.nodesource.com/setup_20.x | bash -
+      - apt-get install -y nodejs
   database:
     creds:
       portforward: true
@@ -22,6 +26,12 @@ services:
     type: mailhog
     ssl: true
     portforward: true
+
+tooling:
+  node:
+    service: appserver
+  npm:
+    service: appserver
 
 proxy:
   phpmyadmin:
