@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreScraperRequest;
 use App\Services\ScraperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -30,21 +31,16 @@ class ScraperController extends Controller
     /**
      * Store a new scraped item based on the provided URLs and extraction rules.
      *
-     * @param Request $request
+     * @param StoreScraperRequest $request
      * @param ScraperService $service
      * @return JsonResponse
      */
     public function store(
-        Request $request,
+        StoreScraperRequest $request,
         ScraperService $service
     ): JsonResponse {
-        // Validate the incoming request data
-        $validated = $request->validate([
-            'urls' => ['required', 'array'],
-            'urls.*' => ['string', 'url'],
-            'extract_rules' => ['nullable', 'string'],
-            'async' => ['nullable'],
-        ]);
+        // Retrieve the validated request data
+        $validated = $request->validated();
 
         // Set default values for the arguments
         $defaults = [
