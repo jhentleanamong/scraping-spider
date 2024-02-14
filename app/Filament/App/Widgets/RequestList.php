@@ -3,6 +3,7 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\ScrapeRecord;
+use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\Actions\Action;
@@ -10,7 +11,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Computed;
 
 class RequestList extends BaseWidget
 {
@@ -69,7 +72,10 @@ class RequestList extends BaseWidget
 
     public static function getRecord(ScrapeRecord $record): View
     {
-        $response = Http::get(route('api.jobs.show', $record->id));
+        $apiKey = Auth::user()->api_key;
+        $response = Http::withToken($apiKey)->get(
+            route('api.jobs.show', $record->id)
+        );
 
         return view('filament.app.pages.actions.record', compact('response'));
     }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -13,7 +14,9 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class RequestBuilder extends Component implements HasForms, HasActions
@@ -145,13 +148,16 @@ class RequestBuilder extends Component implements HasForms, HasActions
 
         $validated = $this->form->getState();
 
-        $response = Http::post(route('api.jobs.store'), [
-            'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
-            'extract_rules' => json_encode(
-                json_decode($validated['extract_rules'])
-            ),
-            'async' => $validated['async'],
-        ]);
+        $response = Http::withToken($this->user->api_key)->post(
+            route('api.jobs.store'),
+            [
+                'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
+                'extract_rules' => json_encode(
+                    json_decode($validated['extract_rules'])
+                ),
+                'async' => $validated['async'],
+            ]
+        );
 
         $this->response = [
             'data' => $response->json(),
@@ -160,6 +166,17 @@ class RequestBuilder extends Component implements HasForms, HasActions
         ];
 
         $this->showResponse = true;
+    }
+
+    /**
+     * Initialize user computed property.
+     *
+     * @return User
+     */
+    #[Computed]
+    public function user(): User
+    {
+        return Auth::user();
     }
 
     /**

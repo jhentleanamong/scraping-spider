@@ -19,7 +19,9 @@ class ScrapeRecord extends Model
 
     public function getRows(): array
     {
-        $response = Http::asJson()
+        $apiKey = auth()->user()->api_key;
+        $response = Http::withToken($apiKey)
+            ->asJson()
             ->acceptJson()
             ->get(route('api.jobs.index'));
 
@@ -42,8 +44,6 @@ class ScrapeRecord extends Model
                 'updated_at' => $record['updated_at'],
             ];
         }
-
-        // dd($formattedRecords);
 
         return $formattedRecords;
     }
