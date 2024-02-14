@@ -70,10 +70,9 @@ class RequestList extends BaseWidget
             ->defaultSort('created_at', 'desc');
     }
 
-    public static function getRecord(ScrapeRecord $record): View
+    public function getRecord(ScrapeRecord $record): View
     {
-        $apiKey = Auth::user()->api_key;
-        $response = Http::withToken($apiKey)->get(
+        $response = Http::withToken($this->user->api_key)->get(
             route('api.jobs.show', $record->id)
         );
 
@@ -82,7 +81,9 @@ class RequestList extends BaseWidget
 
     public function delete(ScrapeRecord $record): void
     {
-        $response = Http::delete(route('api.jobs.destroy', $record->id));
+        $response = Http::withToken($this->user->api_key)->delete(
+            route('api.jobs.destroy', $record->id)
+        );
 
         if ($response->failed()) {
             Notification::make()
@@ -97,5 +98,11 @@ class RequestList extends BaseWidget
             ->title('Record deleted successfully')
             ->success()
             ->send();
+    }
+
+    #[Computed]
+    public function user(): User
+    {
+        return Auth::user();
     }
 }
