@@ -46,7 +46,8 @@ class AppPanelProvider extends PanelProvider
             )
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+                \App\Filament\App\Widgets\ApiKeyClipboard::class,
                 \App\Filament\App\Widgets\RequestList::class,
             ])
             ->middleware([
