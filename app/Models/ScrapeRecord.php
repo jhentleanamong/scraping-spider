@@ -2,49 +2,65 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
-use Sushi\Sushi;
 
 class ScrapeRecord extends Model
 {
-    use Sushi;
+    use HasUuids;
 
-    protected $casts = [
-        'id' => 'string',
-        'urls' => 'json',
-        'extract_rules' => 'json',
-        'results' => 'json',
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'details_url',
+        'urls',
+        'extract_rules',
+        'results',
+        'status',
     ];
 
-    public function getRows(): array
-    {
-        $apiKey = auth()->user()->api_key;
-        $response = Http::withToken($apiKey)
-            ->asJson()
-            ->acceptJson()
-            ->get(route('api.jobs.index'));
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'urls' => 'array',
+        'extract_rules' => 'array',
+        'results' => 'array',
+    ];
 
-        return $this->formatRecords($response->json());
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (ScrapeRecord $scrapeRecord) {
+            $scrapeRecord->update([
+                'details_url' => route('api.jobs.show', $scrapeRecord->uuid),
+            ]);
+        });
     }
 
-    public function formatRecords(array $records): array
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array
+     */
+    public function uniqueIds(): array
     {
-        $formattedRecords = [];
+        return ['uuid'];
+    }
 
-        foreach ($records as $record) {
-            $formattedRecords[] = [
-                'id' => $record['id'],
-                'details_url' => $record['details_url'],
-                'urls' => json_encode($record['urls']),
-                'extract_rules' => json_encode($record['extract_rules']),
-                'results' => json_encode($record['results']),
-                'status' => $record['status'],
-                'created_at' => $record['created_at'],
-                'updated_at' => $record['updated_at'],
-            ];
-        }
-
-        return $formattedRecords;
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
     }
 }

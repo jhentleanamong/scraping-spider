@@ -2,25 +2,24 @@
 
 namespace App\Jobs;
 
+use App\Models\ScrapeRecord;
 use App\Services\ScraperService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Str;
 
 class ScrapeWebsite implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * The scrape record key.
+     * The scrape record.
      *
-     * @var string
+     * @var ScrapeRecord
      */
-    public string $key;
+    public ScrapeRecord $scrapeRecord;
 
     /**
      * The urls of the websites.
@@ -39,9 +38,12 @@ class ScrapeWebsite implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $key, array $urls, mixed $rules)
-    {
-        $this->key = $key;
+    public function __construct(
+        ScrapeRecord $scrapeRecord,
+        array $urls,
+        mixed $rules
+    ) {
+        $this->scrapeRecord = $scrapeRecord;
         $this->urls = $urls;
         $this->rules = $rules;
     }
@@ -60,17 +62,15 @@ class ScrapeWebsite implements ShouldQueue
                 return $item->all();
             });
 
-            // Update Redis with the result and status
-            Redis::hmset($this->key, [
-                'results' => json_encode($results),
+            // Update scrape record with the result and status
+            $this->scrapeRecord->update([
+                'results' => $results,
                 'status' => 'completed',
-                'updated_at' => now(),
             ]);
         } catch (\Exception $e) {
-            // Update Redis with error status
-            Redis::hmset($this->key, [
+            // Update scrape record with error status
+            $this->scrapeRecord->update([
                 'status' => 'failed',
-                'updated_at' => now(),
             ]);
         }
     }

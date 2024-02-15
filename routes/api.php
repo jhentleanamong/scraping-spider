@@ -31,12 +31,14 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 
     // Retrieve details of a specific scraping job by its ID
-    Route::get('/jobs/{id}', [ScraperController::class, 'show'])->name(
-        'api.jobs.show'
-    );
+    Route::get('/jobs/{scrapeRecord}', [
+        ScraperController::class,
+        'show',
+    ])->name('api.jobs.show');
 
     // Define the route for deleting a specific scrape record by its ID
-    Route::delete('/jobs/{id}', [ScraperController::class, 'destroy'])->name(
-        'api.jobs.destroy'
-    );
+    Route::delete('/jobs/{scrapeRecord}', [
+        ScraperController::class,
+        'destroy',
+    ])->name('api.jobs.destroy');
 });

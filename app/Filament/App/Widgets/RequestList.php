@@ -26,7 +26,7 @@ class RequestList extends BaseWidget
         return $table
             ->query(ScrapeRecord::query())
             ->columns([
-                TextColumn::make('id')
+                TextColumn::make('uuid')
                     ->label('ID')
                     ->sortable(),
                 TextColumn::make('status')
@@ -52,7 +52,7 @@ class RequestList extends BaseWidget
                     ->icon('heroicon-o-magnifying-glass')
                     ->modalHeading('View Request Record')
                     ->modalContent(function (ScrapeRecord $record) {
-                        return $this->getRecord($record);
+                        return $this->show($record);
                     })
                     ->modalWidth(MaxWidth::FiveExtraLarge)
                     ->modalCancelAction(false)
@@ -70,10 +70,10 @@ class RequestList extends BaseWidget
             ->defaultSort('created_at', 'desc');
     }
 
-    public function getRecord(ScrapeRecord $record): View
+    public function show(ScrapeRecord $record): View
     {
         $response = Http::withToken($this->user->api_key)->get(
-            route('api.jobs.show', $record->id)
+            route('api.jobs.show', $record->uuid)
         );
 
         return view('filament.app.pages.actions.record', compact('response'));
@@ -82,7 +82,7 @@ class RequestList extends BaseWidget
     public function delete(ScrapeRecord $record): void
     {
         $response = Http::withToken($this->user->api_key)->delete(
-            route('api.jobs.destroy', $record->id)
+            route('api.jobs.destroy', $record->uuid)
         );
 
         if ($response->failed()) {

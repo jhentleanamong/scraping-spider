@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreScraperRequest;
+use App\Models\ScrapeRecord;
 use App\Services\ScraperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -16,13 +17,12 @@ class ScraperController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param ScraperService $service
      * @return JsonResponse
      */
-    public function index(ScraperService $service): JsonResponse
+    public function index(): JsonResponse
     {
         // Get all scrape records
-        $scrapeRecords = $service->getScrapeRecords();
+        $scrapeRecords = ScrapeRecord::all();
 
         // Return the all scrape records as a JSON response
         return response()->json($scrapeRecords, 200);
@@ -87,17 +87,13 @@ class ScraperController extends Controller
     /**
      * Display the specified scrape record resource.
      *
-     * @param string $id The unique identifier for the scraping record.
-     * @param ScraperService $service The service responsible for formatting scraping records.
-     * @return JsonResponse The formatted scraping record.
+     * @param ScrapeRecord $scrapeRecord The scrape record.
+     * @return JsonResponse
      */
-    public function show(string $id, ScraperService $service): JsonResponse
+    public function show(ScrapeRecord $scrapeRecord): JsonResponse
     {
-        $key = 'scrape_record:' . $id;
-        $record = Redis::hgetall($key);
-
-        // Check if the record exist
-        if (!$record) {
+        // Check if the scrape record exist
+        if (!$scrapeRecord) {
             return response()->json(
                 [
                     'message' => 'Scrape record does not exist',
@@ -106,27 +102,19 @@ class ScraperController extends Controller
             );
         }
 
-        return response()->json(
-            $service->formatRecord(Redis::hgetall($key)),
-            200
-        );
+        return response()->json($scrapeRecord, 200);
     }
 
     /**
      * Remove the specified scrape record resource.
      *
-     * @param string $id The unique identifier for the scraping record.
+     * @param ScrapeRecord $scrapeRecord The scrape record.
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(ScrapeRecord $scrapeRecord): JsonResponse
     {
-        $key = 'scrape_record:' . $id;
-
-        // Delete the entire hash
-        $deleted = Redis::del($key);
-
-        // Check if the hash was actually deleted
-        if (!$deleted) {
+        // Check if the scrape record was actually deleted
+        if (!$scrapeRecord) {
             return response()->json(
                 [
                     'message' => 'Scrape record does not exist',

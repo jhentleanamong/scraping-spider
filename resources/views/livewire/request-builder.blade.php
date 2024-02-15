@@ -28,7 +28,6 @@
             </x-slot:heading>
 
             <pre class="overflow-auto">@json($this->response['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)</pre>
-
         </x-filament::section>
     </div>
 </div>
