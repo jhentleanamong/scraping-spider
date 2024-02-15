@@ -113,8 +113,11 @@ class ScraperController extends Controller
      */
     public function destroy(ScrapeRecord $scrapeRecord): JsonResponse
     {
+        // Delete the scrape record
+        $deleted = $scrapeRecord->delete();
+
         // Check if the scrape record was actually deleted
-        if (!$scrapeRecord) {
+        if (!$deleted) {
             return response()->json(
                 [
                     'message' => 'Scrape record does not exist',
