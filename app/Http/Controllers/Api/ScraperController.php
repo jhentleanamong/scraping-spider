@@ -4,28 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreScraperRequest;
+use App\Http\Resources\ScrapeRecordResource;
 use App\Models\ScrapeRecord;
 use App\Services\ScraperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Str;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ScraperController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      */
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection
     {
         // Get all scrape records
-        $scrapeRecords = ScrapeRecord::all();
+        $scrapeRecords = ScrapeRecord::paginate(20);
 
-        // Return the all scrape records as a JSON response
-        return response()->json($scrapeRecords, 200);
+        // Return paginated scrape records as a JSON response
+        return ScrapeRecordResource::collection($scrapeRecords);
     }
 
     /**
@@ -33,12 +32,12 @@ class ScraperController extends Controller
      *
      * @param StoreScraperRequest $request
      * @param ScraperService $service
-     * @return JsonResponse
+     * @return JsonResponse|ScrapeRecordResource
      */
     public function store(
         StoreScraperRequest $request,
         ScraperService $service
-    ): JsonResponse {
+    ): JsonResponse|ScrapeRecordResource {
         // Retrieve the validated request data
         $validated = $request->validated();
 
@@ -71,7 +70,7 @@ class ScraperController extends Controller
             );
 
             // Return the formatted scrape record as a JSON response
-            return response()->json($scrapeRecord, 200);
+            return new ScrapeRecordResource($scrapeRecord);
         } catch (Exception $e) {
             // Handle exceptions by returning a generic error message
             return response()->json(
@@ -88,10 +87,11 @@ class ScraperController extends Controller
      * Display the specified scrape record resource.
      *
      * @param ScrapeRecord $scrapeRecord The scrape record.
-     * @return JsonResponse
+     * @return JsonResponse|ScrapeRecordResource
      */
-    public function show(ScrapeRecord $scrapeRecord): JsonResponse
-    {
+    public function show(
+        ScrapeRecord $scrapeRecord
+    ): JsonResponse|ScrapeRecordResource {
         // Check if the scrape record exist
         if (!$scrapeRecord) {
             return response()->json(
@@ -102,7 +102,8 @@ class ScraperController extends Controller
             );
         }
 
-        return response()->json($scrapeRecord, 200);
+        // Return the formatted scrape record as a JSON response
+        return new ScrapeRecordResource($scrapeRecord);
     }
 
     /**

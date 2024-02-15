@@ -160,7 +160,7 @@ class RequestBuilder extends Component implements HasForms, HasActions
         );
 
         $this->response = [
-            'data' => $response->json(),
+            'data' => $response->json()['data'],
             'status' => $response->status(),
             'reason' => $response->reason(),
         ];
