@@ -4,8 +4,9 @@ recipe: laravel
 config:
   webroot: public
   php: '8.2'
+  database: mysql:8.0
   composer_version: '2.5.4'
-  cache: redis
+  cache: redis:6.0.2
 
 services:
   appserver:
@@ -13,8 +14,8 @@ services:
       - curl -sL https://deb.nodesource.com/setup_20.x | bash -
       - apt-get install -y nodejs
   database:
+    portforward: 32799
     creds:
-      portforward: true
       database: easy_scraper
       password: password
       user: lando
@@ -26,6 +27,8 @@ services:
     type: mailhog
     ssl: true
     portforward: true
+  cache:
+    portforward: 32798
 
 tooling:
   node:
