@@ -1,4 +1,4 @@
-name: easy-scraper
+name: scraping-spider
 recipe: laravel
 
 config:
@@ -16,7 +16,7 @@ services:
   database:
     portforward: 32799
     creds:
-      database: easy_scraper
+      database: scraping_spider
       password: password
       user: lando
   phpmyadmin:

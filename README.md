@@ -1,4 +1,4 @@
-# Easy Scraper
+# Scraping Spider
 
 ## Overview
 This project is a Laravel-based backend application designed to manage and process jobs with RESTful API endpoints. It uses Redis for data storage and supports background processing for web scraping tasks.
