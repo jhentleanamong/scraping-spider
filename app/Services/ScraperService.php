@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\ScrapeWebsite;
 use App\Models\ScrapeRecord;
+use App\Models\User;
 use App\Spiders\UniversalSpider;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
@@ -31,18 +32,20 @@ class ScraperService
     /**
      * Create and store a scrape record in Redis based on provided URLs and rules.
      *
+     * @param User $user The user model.
      * @param array $urls  The URLs to be scraped.
      * @param mixed $rules  The extraction rules for scraping.
      * @param bool $async Flag to determine if scraping should be processed asynchronously.
      * @return ScrapeRecord  The scrape record data.
      */
     public function saveScrapeRecord(
+        User $user,
         array $urls,
         mixed $rules,
         bool $async = false
     ): ScrapeRecord {
         // Store initial scrape record data
-        $scrapeRecord = ScrapeRecord::create([
+        $scrapeRecord = $user->scrapeRecords()->create([
             'urls' => $urls,
             'extract_rules' => json_decode($rules, true),
             'results' => '',

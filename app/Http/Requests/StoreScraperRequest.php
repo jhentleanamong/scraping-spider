@@ -22,6 +22,7 @@ class StoreScraperRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'api_key' => ['required', 'string'],
             'urls' => ['required', 'array'],
             'urls.*' => ['string', 'url'],
             'extract_rules' => ['nullable', 'string'],

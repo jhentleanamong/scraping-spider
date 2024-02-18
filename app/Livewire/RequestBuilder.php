@@ -148,16 +148,14 @@ class RequestBuilder extends Component implements HasForms, HasActions
 
         $validated = $this->form->getState();
 
-        $response = Http::withToken($this->user->api_key)->post(
-            route('api.jobs.store'),
-            [
-                'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
-                'extract_rules' => json_encode(
-                    json_decode($validated['extract_rules'])
-                ),
-                'async' => $validated['async'],
-            ]
-        );
+        $response = Http::post(route('api.jobs.store'), [
+            'api_key' => $this->user->api_key,
+            'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
+            'extract_rules' => json_encode(
+                json_decode($validated['extract_rules'])
+            ),
+            'async' => $validated['async'],
+        ]);
 
         $this->response = [
             'data' => $response->json()['data'],

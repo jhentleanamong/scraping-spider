@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreScraperRequest;
 use App\Http\Resources\ScrapeRecordResource;
 use App\Models\ScrapeRecord;
+use App\Models\User;
 use App\Services\ScraperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,18 @@ class ScraperController extends Controller
             'async' => false,
         ];
 
+        // Merge validated data with defaults, prioritizing validated values
         $args = array_merge($defaults, $validated);
+
+        // Generate an API key hash for user verification
+        $apiKeyHash = hash_hmac(
+            'sha256',
+            $validated['api_key'],
+            config('app.key')
+        );
+
+        // Look up the user by API key hash
+        $user = User::where('api_key_hash', $apiKeyHash)->first();
 
         // Converts single URL string into an array if necessary
         if (is_string($args['urls'])) {
@@ -64,6 +76,7 @@ class ScraperController extends Controller
         try {
             // Save the scrape record and obtain the formatted result
             $scrapeRecord = $service->saveScrapeRecord(
+                $user,
                 $args['urls'],
                 $args['extract_rules'],
                 $args['async']
@@ -71,7 +84,7 @@ class ScraperController extends Controller
 
             // Return the formatted scrape record as a JSON response
             return new ScrapeRecordResource($scrapeRecord);
-        } catch (Exception $e) {
+        } catch (Exception $error) {
             // Handle exceptions by returning a generic error message
             return response()->json(
                 [
