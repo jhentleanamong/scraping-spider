@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
 
 class ScrapeRecord extends Model
@@ -58,9 +59,21 @@ class ScrapeRecord extends Model
 
     /**
      * Get the route key for the model.
+     *
+     * @return string
      */
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    /**
+     * Get the user that owns the scrape records.
+     *
+     * @return BelongsTo
+     */
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
