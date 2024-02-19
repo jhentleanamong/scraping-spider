@@ -40,7 +40,10 @@ class ScrapeRecord extends Model
     {
         static::created(function (ScrapeRecord $scrapeRecord) {
             $scrapeRecord->update([
-                'details_url' => route('api.jobs.show', $scrapeRecord->uuid),
+                'details_url' => route(
+                    'api.scrape-records.show',
+                    $scrapeRecord->uuid
+                ),
             ]);
         });
     }

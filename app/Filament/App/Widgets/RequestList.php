@@ -73,7 +73,7 @@ class RequestList extends BaseWidget
     public function show(ScrapeRecord $record): View
     {
         $response = Http::withToken($this->user->api_key)->get(
-            route('api.jobs.show', $record->uuid)
+            route('api.scrape-records.show', $record->uuid)
         );
 
         return view('filament.app.pages.actions.record', compact('response'));
@@ -82,7 +82,7 @@ class RequestList extends BaseWidget
     public function delete(ScrapeRecord $record): void
     {
         $response = Http::withToken($this->user->api_key)->delete(
-            route('api.jobs.destroy', $record->uuid)
+            route('api.scrape-records.destroy', $record->uuid)
         );
 
         if ($response->failed()) {
