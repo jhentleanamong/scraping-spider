@@ -9,6 +9,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -70,17 +71,22 @@ class RequestBuilder extends Component implements HasForms, HasActions
                         ->required()
                         ->inline(),
 
-                    Textarea::make('urls')
-                        ->label('Input URLs')
-                        ->helperText(
-                            "Insert one or more URLs and separate each one by pressing 'Enter' or 'Return'."
-                        )
-                        ->required()
-                        ->default(
-                            "https://toscrape.com/\nhttps://quotes.toscrape.com/\nhttps://books.toscrape.com/"
-                        )
-                        ->rows(4)
-                        ->autosize(),
+                    // Textarea::make('urls')
+                    //     ->label('Input URLs')
+                    //     ->helperText(
+                    //         "Insert one or more URLs and separate each one by pressing 'Enter' or 'Return'."
+                    //     )
+                    //     ->required()
+                    //     ->default(
+                    //         "https://toscrape.com/\nhttps://quotes.toscrape.com/\nhttps://books.toscrape.com/"
+                    //     )
+                    //     ->rows(4)
+                    //     ->autosize(),
+
+                    TextInput::make('url')
+                        ->label('URL')
+                        ->default('https://quotes.toscrape.com')
+                        ->required(),
 
                     MarkdownEditor::make('extract_rules')
                         ->label('Extract Rules (JSON)')
@@ -150,7 +156,8 @@ class RequestBuilder extends Component implements HasForms, HasActions
 
         $response = Http::post(route('api.jobs.store'), [
             'api_key' => $this->user->api_key,
-            'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
+            // 'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
+            'url' => $validated['url'],
             'extract_rules' => json_encode(
                 json_decode($validated['extract_rules'])
             ),

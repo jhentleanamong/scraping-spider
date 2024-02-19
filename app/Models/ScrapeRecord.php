@@ -17,9 +17,9 @@ class ScrapeRecord extends Model
      */
     protected $fillable = [
         'details_url',
-        'urls',
+        'url',
         'extract_rules',
-        'results',
+        'result',
         'status',
     ];
 
@@ -29,9 +29,8 @@ class ScrapeRecord extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'urls' => 'array',
         'extract_rules' => 'array',
-        'results' => 'array',
+        'result' => 'array',
     ];
 
     /**

@@ -17,9 +17,9 @@ class ScrapeRecordResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'details_url' => $this->details_url,
-            'urls' => $this->urls,
+            'url' => $this->url,
             'extract_rules' => $this->extract_rules,
-            'results' => $this->results,
+            'result' => $this->result,
             'status' => $this->status,
         ];
     }

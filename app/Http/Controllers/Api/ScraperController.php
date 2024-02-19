@@ -29,7 +29,7 @@ class ScraperController extends Controller
     }
 
     /**
-     * Store a new scraped item based on the provided URLs and extraction rules.
+     * Store a new scraped item based on the provided URL and extraction rules.
      *
      * @param StoreScraperRequest $request
      * @param ScraperService $service
@@ -44,7 +44,7 @@ class ScraperController extends Controller
 
         // Set default values for the arguments
         $defaults = [
-            'urls' => [],
+            'url' => '',
             'extract_rules' => null,
             'async' => false,
         ];
@@ -62,11 +62,6 @@ class ScraperController extends Controller
         // Look up the user by API key hash
         $user = User::where('api_key_hash', $apiKeyHash)->first();
 
-        // Converts single URL string into an array if necessary
-        if (is_string($args['urls'])) {
-            $args['urls'] = [$args['urls']];
-        }
-
         // Set 'async' to false if it's not set in the request
         // Determines if the scraping should be performed asynchronously
         $args['async'] = $args['async']
@@ -77,7 +72,7 @@ class ScraperController extends Controller
             // Save the scrape record and obtain the formatted result
             $scrapeRecord = $service->saveScrapeRecord(
                 $user,
-                $args['urls'],
+                $args['url'],
                 $args['extract_rules'],
                 $args['async']
             );

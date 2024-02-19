@@ -22,11 +22,11 @@ class ScrapeWebsite implements ShouldQueue
     public ScrapeRecord $scrapeRecord;
 
     /**
-     * The urls of the websites.
+     * The url of the websites.
      *
-     * @var array
+     * @var string
      */
-    public array $urls;
+    public string $url;
 
     /**
      * The provided extract rules.
@@ -40,11 +40,11 @@ class ScrapeWebsite implements ShouldQueue
      */
     public function __construct(
         ScrapeRecord $scrapeRecord,
-        array $urls,
+        string $url,
         mixed $rules
     ) {
         $this->scrapeRecord = $scrapeRecord;
-        $this->urls = $urls;
+        $this->url = $url;
         $this->rules = $rules;
     }
 
@@ -54,17 +54,17 @@ class ScrapeWebsite implements ShouldQueue
     public function handle(ScraperService $service): void
     {
         try {
-            // Extract data from the provided URLs and rules
-            $items = $service->extract($this->urls, $this->rules);
+            // Extract data from the provided URL and rules
+            $items = $service->extract($this->url, $this->rules);
 
-            // Transform and store the extracted data and update the status in Redis
-            $results = collect($items)->map(function ($item) {
+            // Store the extracted data
+            $result = collect($items)->map(function ($item) {
                 return $item->all();
             });
 
             // Update scrape record with the result and status
             $this->scrapeRecord->update([
-                'results' => $results,
+                'result' => $result,
                 'status' => 'completed',
             ]);
         } catch (\Exception $e) {

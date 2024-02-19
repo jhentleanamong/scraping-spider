@@ -89,10 +89,7 @@ class UniversalSpider extends BasicSpider
         }
 
         // Yielding the final result after extraction
-        yield $this->item([
-            'url' => $response->getUri(),
-            'result' => $result,
-        ]);
+        yield $this->item($result);
     }
 
     /**
