@@ -45,4 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ScrapeRecordController::class,
         'destroy',
     ])->name('api.scrape-records.destroy');
+
+    // Initiates a web scraping process and returns the result
+    Route::get('/', ScraperController::class)->name('api.scraper');
 });

@@ -21,6 +21,7 @@ class ScrapeRecord extends Model
         'extract_rules',
         'result',
         'status',
+        'status_code',
     ];
 
     /**
@@ -31,6 +32,7 @@ class ScrapeRecord extends Model
     protected $casts = [
         'extract_rules' => 'array',
         'result' => 'array',
+        'status_code' => 'integer',
     ];
 
     /**
