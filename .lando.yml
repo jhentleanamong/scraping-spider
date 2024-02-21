@@ -12,6 +12,7 @@ services:
   appserver:
     build_as_root:
       - curl -sL https://deb.nodesource.com/setup_20.x | bash -
+      - apt-get update -y
       - apt-get install -y nodejs
   database:
     portforward: 32799
