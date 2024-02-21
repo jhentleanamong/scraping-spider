@@ -3,15 +3,12 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\ScrapeRecord;
-use App\Models\User;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
 
 class ApiResponseMonitor extends ChartWidget
 {
