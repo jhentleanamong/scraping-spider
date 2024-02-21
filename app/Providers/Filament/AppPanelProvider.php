@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\App\Pages\Auth\Login;
+use App\Filament\App\Widgets\ApiKeyClipboard;
+use App\Filament\App\Widgets\ApiResponseMonitor;
+use App\Filament\App\Widgets\RequestList;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -47,8 +50,9 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-                \App\Filament\App\Widgets\ApiKeyClipboard::class,
-                \App\Filament\App\Widgets\RequestList::class,
+                ApiKeyClipboard::class,
+                ApiResponseMonitor::class,
+                RequestList::class,
             ])
             ->middleware([
                 EncryptCookies::class,
