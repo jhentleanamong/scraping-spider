@@ -7,6 +7,7 @@ use App\Http\Requests\StoreScraperRequest;
 use App\Http\Resources\ScrapeRecordResource;
 use App\Models\ScrapeRecord;
 use App\Models\User;
+use App\Services\ScrapeRecordService;
 use App\Services\ScraperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -32,12 +33,12 @@ class ScrapeRecordController extends Controller
      * Store a new scraped item based on the provided URL and extraction rules.
      *
      * @param StoreScraperRequest $request
-     * @param ScraperService $service
+     * @param ScrapeRecordService $service
      * @return JsonResponse|ScrapeRecordResource
      */
     public function store(
         StoreScraperRequest $request,
-        ScraperService $service
+        ScrapeRecordService $service
     ): JsonResponse|ScrapeRecordResource {
         // Retrieve the validated request data
         $validated = $request->validated();
@@ -70,7 +71,7 @@ class ScrapeRecordController extends Controller
 
         try {
             // Save the scrape record and obtain the formatted result
-            $scrapeRecord = $service->saveScrapeRecord(
+            $scrapeRecord = $service->create(
                 $user,
                 $args['url'],
                 $args['extract_rules'],
