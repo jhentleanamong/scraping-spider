@@ -25,7 +25,32 @@ class StoreScraperRequest extends FormRequest
             'api_key' => ['required', 'string'],
             'url' => ['required', 'string', 'url'],
             'extract_rules' => ['nullable', 'string'],
-            'async' => ['nullable'],
+            'async' => ['nullable', 'boolean'],
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'async' => $this->toBool($this->async),
+        ]);
+    }
+
+    /**
+     * Converts a value to a boolean.
+     *
+     * @param mixed $value The value to convert.
+     * @return bool|null Boolean value or null on failure.
+     */
+    private function toBool(mixed $value): ?bool
+    {
+        return filter_var(
+            $value,
+            FILTER_VALIDATE_BOOLEAN,
+            FILTER_NULL_ON_FAILURE
+        );
     }
 }

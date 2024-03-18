@@ -63,12 +63,6 @@ class ScrapeRecordController extends Controller
         // Look up the user by API key hash
         $user = User::where('api_key_hash', $apiKeyHash)->first();
 
-        // Set 'async' to false if it's not set in the request
-        // Determines if the scraping should be performed asynchronously
-        $args['async'] = $args['async']
-            ? filter_var($args['async'], FILTER_VALIDATE_BOOLEAN)
-            : false;
-
         try {
             // Save the scrape record and obtain the formatted result
             $scrapeRecord = $service->create(
