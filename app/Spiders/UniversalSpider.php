@@ -2,8 +2,9 @@
 
 namespace App\Spiders;
 
+use App\Downloader\Middleware\ExecuteJavascriptMiddleware;
 use Generator;
-use RoachPHP\Downloader\Middleware\ExecuteJavascriptMiddleware;
+use Illuminate\Support\Facades\Log;
 use RoachPHP\Downloader\Middleware\RequestDeduplicationMiddleware;
 use RoachPHP\Extensions\LoggerExtension;
 use RoachPHP\Extensions\StatsCollectorExtension;
