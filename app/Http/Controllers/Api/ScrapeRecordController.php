@@ -66,13 +66,7 @@ class ScrapeRecordController extends Controller
 
         try {
             // Save the scrape record and obtain the formatted result
-            $scrapeRecord = $service->create(
-                $user,
-                $args['url'],
-                $args['extract_rules'],
-                $args['screenshot'],
-                $args['async']
-            );
+            $scrapeRecord = $service->create($user, $args['url'], $args);
 
             // Return the formatted scrape record as a JSON response
             return new ScrapeRecordResource($scrapeRecord);

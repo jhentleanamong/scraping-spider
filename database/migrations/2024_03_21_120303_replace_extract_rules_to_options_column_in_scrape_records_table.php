@@ -11,7 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('scrape_records', function (Blueprint $table) {
-            $table->renameColumn('extract_rules', 'options');
+            $table->dropColumn('extract_rules');
+            $table->json('options')->nullable()->after('url');
         });
     }
 
@@ -21,7 +22,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('scrape_records', function (Blueprint $table) {
-            $table->renameColumn('options', 'extract_rules');
+            $table->json('extract_rules')->after('url');
+            $table->dropColumn('options');
         });
     }
 };

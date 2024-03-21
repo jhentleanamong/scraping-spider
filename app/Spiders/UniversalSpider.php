@@ -79,7 +79,7 @@ class UniversalSpider extends BasicSpider
 
         // If no extraction rules are defined, yield a simple item with HTML content
         if (!$extractRules) {
-            yield $this->item([$response->html()]);
+            yield $this->item([$response->outerHtml()]);
             return;
         }
 

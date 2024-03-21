@@ -29,18 +29,11 @@ class ScrapeWebsite implements ShouldQueue
     public string $url;
 
     /**
-     * The provided extract rules.
+     * An array of elements that make up scrape record.
      *
      * @var mixed
      */
-    public mixed $rules;
-
-    /**
-     * Indicates if screenshot the website.
-     *
-     * @var string
-     */
-    public bool $screenshot;
+    public array $options;
 
     /**
      * Create a new job instance.
@@ -48,12 +41,11 @@ class ScrapeWebsite implements ShouldQueue
     public function __construct(
         ScrapeRecord $scrapeRecord,
         string $url,
-        bool $screenshot,
-        mixed $rules
+        array $options
     ) {
         $this->scrapeRecord = $scrapeRecord;
         $this->url = $url;
-        $this->rules = $rules;
+        $this->options = $options;
     }
 
     /**
@@ -63,7 +55,10 @@ class ScrapeWebsite implements ShouldQueue
     {
         try {
             // Extract data from the provided URL and rules
-            $items = $service->extractData($this->url, $this->rules);
+            $items = $service->extractData(
+                $this->url,
+                $this->options['extract_rules']
+            );
 
             // Store the extracted data
             $result = collect($items)->map(function ($item) {
@@ -77,7 +72,7 @@ class ScrapeWebsite implements ShouldQueue
                 }),
             ];
 
-            if ($this->screenshot) {
+            if ($this->options['screenshot']) {
                 $result['screenshot'] = $service->takeScreenshot($this->url);
             }
 
