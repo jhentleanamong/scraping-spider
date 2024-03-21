@@ -29,6 +29,9 @@ class RequestList extends BaseWidget
                 TextColumn::make('uuid')
                     ->label('ID')
                     ->sortable(),
+                TextColumn::make('url')
+                    ->label('URL')
+                    ->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(
