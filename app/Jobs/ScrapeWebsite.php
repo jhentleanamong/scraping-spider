@@ -36,11 +36,19 @@ class ScrapeWebsite implements ShouldQueue
     public mixed $rules;
 
     /**
+     * Indicates if screenshot the website.
+     *
+     * @var string
+     */
+    public bool $screenshot;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(
         ScrapeRecord $scrapeRecord,
         string $url,
+        bool $screenshot,
         mixed $rules
     ) {
         $this->scrapeRecord = $scrapeRecord;
@@ -55,12 +63,23 @@ class ScrapeWebsite implements ShouldQueue
     {
         try {
             // Extract data from the provided URL and rules
-            $items = $service->extract($this->url, $this->rules);
+            $items = $service->extractData($this->url, $this->rules);
 
             // Store the extracted data
             $result = collect($items)->map(function ($item) {
                 return $item->all();
             });
+
+            // Store the extracted data
+            $result = [
+                'body' => collect($items)->map(function ($item) {
+                    return $item->all();
+                }),
+            ];
+
+            if ($this->screenshot) {
+                $result['screenshot'] = $service->takeScreenshot($this->url);
+            }
 
             // Update scrape record with the result and status
             $this->scrapeRecord->update([

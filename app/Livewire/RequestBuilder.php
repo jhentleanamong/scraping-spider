@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Services\ScraperService;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
@@ -127,6 +129,8 @@ class RequestBuilder extends Component implements HasForms, HasActions
                             'JSON rules allowing to extract data from CSS selectors.'
                         )
                         ->disableAllToolbarButtons(),
+
+                    Checkbox::make('screenshot')->default(false),
                 ]),
             ])
             ->statePath('data');
@@ -156,11 +160,11 @@ class RequestBuilder extends Component implements HasForms, HasActions
 
         $response = Http::get(route('api.scraper'), [
             'api_key' => $this->user->api_key,
-            // 'urls' => preg_split('/\r\n|\r|\n/', $validated['urls']),
             'url' => $validated['url'],
             'extract_rules' => json_encode(
                 json_decode($validated['extract_rules'])
             ),
+            'screenshot' => $validated['screenshot'],
             'async' => $validated['async'],
         ]);
 

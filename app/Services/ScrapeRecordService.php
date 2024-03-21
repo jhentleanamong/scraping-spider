@@ -20,7 +20,8 @@ class ScrapeRecordService
     public function create(
         User $user,
         string $url,
-        mixed $rules,
+        mixed $rules = null,
+        bool $screenshot = false,
         bool $async = false
     ): ScrapeRecord {
         // Store initial scrape record data
@@ -33,7 +34,7 @@ class ScrapeRecordService
 
         if ($async) {
             // Dispatch the job to scrape the websites
-            ScrapeWebsite::dispatch($scrapeRecord, $url, $rules);
+            ScrapeWebsite::dispatch($scrapeRecord, $url, $rules, $screenshot);
 
             // Set the status to 'in-progress'
             $scrapeRecord->update(['status' => 'in-progress']);
@@ -43,12 +44,20 @@ class ScrapeRecordService
         }
 
         // Extract data from the provided URLs and rules
-        $items = (new ScraperService())->extract($url, $rules);
+        $items = (new ScraperService())->extractData($url, $rules);
 
         // Store the extracted data
-        $result = collect($items)->map(function ($item) {
-            return $item->all();
-        });
+        $result = [
+            'body' => collect($items)->map(function ($item) {
+                return $item->all();
+            }),
+        ];
+
+        if ($screenshot) {
+            $result['screenshot'] = (new ScraperService())->takeScreenshot(
+                $url
+            );
+        }
 
         // Update scrape record with the result and status
         $scrapeRecord->update(['result' => $result, 'status' => 'completed']);

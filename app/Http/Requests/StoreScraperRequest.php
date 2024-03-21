@@ -25,6 +25,7 @@ class StoreScraperRequest extends FormRequest
             'api_key' => ['required', 'string'],
             'url' => ['required', 'string', 'url'],
             'extract_rules' => ['nullable', 'string'],
+            'screenshot' => ['nullable', 'boolean'],
             'async' => ['nullable', 'boolean'],
         ];
     }
@@ -35,6 +36,7 @@ class StoreScraperRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'screenshot' => $this->toBool($this->screenshot),
             'async' => $this->toBool($this->async),
         ]);
     }

@@ -47,6 +47,7 @@ class ScrapeRecordController extends Controller
         $defaults = [
             'url' => '',
             'extract_rules' => null,
+            'screenshot' => false,
             'async' => false,
         ];
 
@@ -69,6 +70,7 @@ class ScrapeRecordController extends Controller
                 $user,
                 $args['url'],
                 $args['extract_rules'],
+                $args['screenshot'],
                 $args['async']
             );
 
