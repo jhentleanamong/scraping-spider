@@ -3,6 +3,7 @@
 namespace App\Spiders;
 
 use Generator;
+use RoachPHP\Downloader\Middleware\ExecuteJavascriptMiddleware;
 use RoachPHP\Downloader\Middleware\RequestDeduplicationMiddleware;
 use RoachPHP\Extensions\LoggerExtension;
 use RoachPHP\Extensions\StatsCollectorExtension;
@@ -32,7 +33,10 @@ class UniversalSpider extends BasicSpider
      *
      * @var array
      */
-    public array $downloaderMiddleware = [];
+    public array $downloaderMiddleware = [
+        RequestDeduplicationMiddleware::class,
+        ExecuteJavascriptMiddleware::class,
+    ];
 
     /**
      * The item processors that emitted items will be send through.
