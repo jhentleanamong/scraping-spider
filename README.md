@@ -1,8 +1,6 @@
 # Scraping Spider
 
-## Introduction
-
-Scraping Spider is a web scraping API application designed to simplify the process of extracting data from websites, offering a RESTful API interface that allows users to specify the target URL and parameters for scraping.
+A web scraping API application designed to simplify the process of extracting data from websites, offering a RESTful API interface that allows users to specify the target URL and parameters for scraping.
 
 ## Built With
 
@@ -23,9 +21,10 @@ Below are some screenshots to give you a preview of the Web Scraping API tool in
 
 To submit a scraping job, send a GET request to `/api/v1` with the following parameters:
 
-- api_key: Your api key.
-- url: The URL of the page you want to scrape.
-- extract_rules: Data extraction from CSS selectors.
+- `api_key` : Your api key.
+- `url` : The URL of the page you want to scrape.
+- `extract_rules` : Data extraction from CSS selectors.
+- `screenshot` : Return a screenshot of the page you want to scrape.
 
 ## Contributing
 
@@ -33,11 +32,7 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 
 ## License
 
-Scraping Spider is open-sourced software licensed under the MIT license.
-
-## Author
-
-- [Jhentle Anamong](https://www.linkedin.com/in/jhentle-anamong/)
+Scraping Spider is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [tailwindcss.com]: https://img.shields.io/badge/Tailwind_CSS-000000?style=for-the-badge&logo=tailwindcss&logoColor=white
